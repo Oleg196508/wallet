@@ -40,4 +40,42 @@ func TestService_FindAccountByID_notFound(t *testing.T) {
 		t.Errorf("Invalid Result: excpected: %v, actual: %v ", expected, result)
 	}
 }
+func TestService_Reject_paymentFound(t *testing.T) {
+	s := Service{
+		payments: []*types.Payment{
+			{ ID: "1020", AccountID: 99, Amount: 1000,},
+			{ ID: "1515", AccountID: 100, Amount: 1500,},		
+		},
+		accounts: []*types.Account{
+			{ID: 100,},
+		},
+	}
+
+
+	result := s.Reject("1515")
+
+	if !reflect.DeepEqual(nil, result) {
+		t.Errorf("Invalid Result: excpected: %v, actual: %v ", nil, result)
+	}
+}
+func TestService_Reject_paymentNotFound(t *testing.T) {
+	s := Service{
+		payments: []*types.Payment{
+			{ ID: "1020", AccountID: 99, Amount: 1000,},
+			{ ID: "1515", AccountID: 100, Amount: 1500,},		
+		},
+		accounts: []*types.Account{
+			{ID: 100,},
+		},
+	}
+
+	expected := ErrPaymentNotFound
+
+	result := s.Reject("1600")
+
+	if !reflect.DeepEqual(expected, result) {
+		t.Errorf("Invalid Result: excpected: %v, actual: %v ", expected, result)
+	}
+}
+
 
