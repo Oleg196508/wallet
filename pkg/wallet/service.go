@@ -125,3 +125,18 @@ func (s *Service)Reject(paymentID string) error {
 	return nil
 	
 }
+//По идентификатору повторяет платёж, то есть создаёт новый, у которого все данные, кроме
+// идентификатора, те же самые, что в оригинальном платеже
+func (s *Service) Repeat(paymentID string) (*types.Payment, error){
+	var payment, err = s.FindPaymentByID(paymentID)
+	if err != nil {   
+		return nil, err
+	}
+    //accountID int64, amount types.Money, category types.PaymentCategory
+	newPayment, err := s.Pay(payment.AccountID, payment.Amount, payment.Category)
+	if err != nil {
+		return nil, err 
+	}
+	return newPayment, nil
+}
+
