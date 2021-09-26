@@ -11,6 +11,7 @@ var ErrPhoneRegistered = errors.New("phone alredy registered")
 var ErrAmountMustBePositive = errors.New("amount must be greater than zero")
 var ErrAccountNotFound = errors.New("account not found")
 var ErrNotEnoughBalance = errors.New("not enough balance")
+var ErrPaymentNotFound = errors.New("payment not found")
 
 type Service struct {
 	nextAccountID int64
@@ -99,3 +100,43 @@ func (s *Service)FindAccountByID(accountID int64) (*types.Account, error)  {
 	}
 	return account, nil
 }
+func (s *Service)FindPaymentByID(paymentID string) (*types.Payment, error)  {
+	
+	for _, payment := range s.payments {
+		if payment.ID == paymentID {
+			return payment, nil
+		}
+	}
+	return nil, ErrPaymentNotFound	
+}
+
+func (s *Service)Reject(paymentID string) error {
+
+	payment, err := s.FindPaymentByID(paymentID)
+	if err != nil{
+		return err	
+	}
+	account, err := s.FindAccountByID(payment.AccountID)
+	if err != nil {
+		return err
+	}
+	payment.Status = types.PaymentStatusFail
+	account.Balance += payment.Amount
+	return nil
+	
+}
+//По идентификатору повторяет платёж, то есть создаёт новый, у которого все данные, кроме
+// идентификатора, те же самые, что в оригинальном платеже
+func (s *Service) Repeat(paymentID string) (*types.Payment, error){
+	var payment, err = s.FindPaymentByID(paymentID)
+	if err != nil {   
+		return nil, err
+	}
+    //accountID int64, amount types.Money, category types.PaymentCategory
+	newPayment, err := s.Pay(payment.AccountID, payment.Amount, payment.Category)
+	if err != nil {
+		return nil, err 
+	}
+	return newPayment, nil
+}
+
