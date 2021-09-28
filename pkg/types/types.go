@@ -25,6 +25,15 @@ type Payment struct {
 	Status    PaymentStatus
 }
 
+// Favorite шаблон для создания платежа
+type Favorite struct {
+	ID        string
+	AccountID int64
+	Name      string
+	Amount    Money
+	Category  PaymentCategory
+}
+
 type Phone string
 
 // Account представляет информацию о счёте пользователя.
